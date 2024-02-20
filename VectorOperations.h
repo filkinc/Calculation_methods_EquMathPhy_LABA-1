@@ -59,6 +59,18 @@ vector<T> operator- (const vector<T>& a, const vector<T>& b) {
 }
 
 template<class T>
+vector<T> operator- (const vector<T>& a) {
+    int n = a.size();
+    vector<T> res(n);
+
+    for (int i = 0; i < n; ++i) {
+        res[i] = -a[i];
+    }
+
+    return res;
+}
+
+template<class T>
 vector<T> operator* (const vector<T>& v, T coef) {
     return mul(v, coef);
 }

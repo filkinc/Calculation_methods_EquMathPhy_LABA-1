@@ -28,6 +28,7 @@ T norm_inf(const vector<T>& x) {
     }
     return xMax;
 }
+
 template <class T>
 T norm_inf(const QuadMatrix<T>& A) {
     size_t n = A.order();
