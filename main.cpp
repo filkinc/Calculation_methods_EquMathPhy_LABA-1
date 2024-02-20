@@ -16,7 +16,7 @@ const double PI = acos(-1);
 const double PI_SQR = PI * PI;
 
 template<typename T>
-vector<T> func1 (T, const vector<T>& xs) {
+inline vector<T> func1 (T, const vector<T>& xs) {
     auto x = xs[0];
     auto y = xs[1];
 
@@ -24,7 +24,7 @@ vector<T> func1 (T, const vector<T>& xs) {
 }
 
 template<typename T>
-vector<T> func2 (T, const vector<T>& xs) {
+inline vector<T> func2 (T, const vector<T>& xs) {
     auto x = xs[0];
     auto y = xs[1];
 
@@ -32,7 +32,7 @@ vector<T> func2 (T, const vector<T>& xs) {
 }
 
 template<typename T>
-vector<T> func3 (T, const vector<T>& xs) {
+inline vector<T> func3 (T, const vector<T>& xs) {
     auto x = xs[0];
     auto y = xs[1];
     auto z = xs[2];
@@ -41,7 +41,7 @@ vector<T> func3 (T, const vector<T>& xs) {
 }
 
 template<typename T>
-vector<T> pendulumFunc (T, const vector<T>& xs) {
+inline vector<T> pendulumFunc (T, const vector<T>& xs) {
     auto x1 = xs[0];
     auto x2 = xs[1];
 
@@ -55,7 +55,7 @@ vector<T> pendulumFunc (T, const vector<T>& xs) {
  */
 
 template<typename T>
-vector<T> xSqrSinFunc (T t, const vector<T>& xs) {
+inline vector<T> xSqrSinFunc (T t, const vector<T>& xs) {
     auto x1 = xs[0];
     auto x2 = xs[1];
 
@@ -132,6 +132,13 @@ void runCalculations(const InitialValueProblemParams<Type>& problemParams) {
         rkParams.sigma = {1./6, 2./6, 2./6, 1./6};
 
         rungeKuttaMethod(problemParams, rkParams, precisionParams, OUTPUT_FILE_NAME);
+
+    } else if (method_id == 2) {
+        explicitEulerMethod(problemParams, precisionParams, OUTPUT_FILE_NAME);
+
+    } else if (method_id == 3) {
+        implicitEulerMethod(problemParams, precisionParams, OUTPUT_FILE_NAME);
+
     }
 }
 
@@ -170,13 +177,15 @@ int main() {
 
     */
 
-    FuncData<double>::rightSides[0](0, {2, 2});
-
     auto problemParams = readInputFile<double>();
 
     runCalculations(problemParams);
 
     cout << "END";
+
+    #ifdef QT_DEBUG
+        system("pause");
+    #endif
 
     return 0;
 }

@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "VectorOperations.h"
+#include "UnlinSolve.h"
 #include "Norma.h"
 
 using namespace std;
@@ -52,6 +53,14 @@ struct RungeKuttaParams {
             b[i] = vector<T>(i);
         }
     }
+};
+
+template<typename T>
+struct multiStepDiffParams {
+    int steps;
+
+    vector<T> a;
+    vector<vector<T>> b;
 };
 
 template<typename T>
@@ -138,6 +147,94 @@ void rungeKuttaMethod(const InitialValueProblemParams<T>& problemParams,
         } else {
             tau /= 2;
         }
+    }
+
+    output.close();
+}
+
+template<typename T>
+void explicitEulerMethod(const InitialValueProblemParams<T>& problemParams,
+                         const DiffPrecisionParams<T>& precisionParams,
+                         const string& outputFileName) {
+
+    ofstream output(outputFileName);
+
+    auto tau = precisionParams.tau0;
+    auto prevY = problemParams.u0;
+    auto f = problemParams.f;
+
+    T t = problemParams.t0;
+
+    output << t;
+    for (auto& yi : prevY) {
+        output << ' ' << yi;
+    }
+    output << '\n';
+
+    int iterCount = 0;
+    for (; t <= problemParams.T && iterCount <= 10000; ++iterCount) {
+        vector<T> nextY;
+
+        nextY = prevY + tau * f(t, prevY);
+
+        t += tau;
+
+        output << t;
+        for (auto& yi : nextY) {
+            output << ' ' << yi;
+        }
+        output << '\n';
+
+        prevY = nextY;
+    }
+
+    output.close();
+}
+
+template<typename T>
+void implicitEulerMethod(const InitialValueProblemParams<T>& problemParams,
+                         const DiffPrecisionParams<T>& precisionParams,
+                         const string& outputFileName) {
+
+    ofstream output(outputFileName);
+
+    auto tau = precisionParams.tau0;
+    auto prevY = problemParams.u0;
+    auto f = problemParams.f;
+
+    T t = problemParams.t0;
+
+    output << t;
+    for (auto& yi : prevY) {
+        output << ' ' << yi;
+    }
+    output << '\n';
+
+    UnlinSolveOptions<T> unlinOpts;
+    unlinOpts.mNorm = norm_inf;
+    unlinOpts.vNorm = norm_inf;
+    unlinOpts.maxIterationCount = 10;
+    unlinOpts.eps = precisionParams.eps;
+
+    int iterCount = 0;
+    for (; t <= problemParams.T && iterCount <= 10000; ++iterCount) {
+        vector<T> nextY;
+
+        auto F = [prevY, t, tau, f](vector<T> y) {
+            return y - tau * f(t + tau, y) - prevY;
+        };
+
+        nextY = templateNewtonMethod(prevY, F, unlinOpts);
+
+        t += tau;
+
+        output << t;
+        for (auto& yi : nextY) {
+            output << ' ' << yi;
+        }
+        output << '\n';
+
+        prevY = nextY;
     }
 
     output.close();
