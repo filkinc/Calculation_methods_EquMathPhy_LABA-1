@@ -1,0 +1,13 @@
+input.txt:
+f_id
+n
+u01 u02 ... u0n
+t0
+T
+
+parameters.txt:
+method_id
+tau0
+tol
+eps
+useStepRegulation
